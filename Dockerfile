@@ -1,4 +1,4 @@
-FROM --platform=$TARGETPLATFORM docker.io/library/node:21-alpine as deemix
+FROM --platform=$TARGETPLATFORM docker.io/library/node:lts-alpine as deemix
 
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
@@ -24,9 +24,9 @@ RUN yarn dist-server
 RUN mv /deemix-gui/dist/deemix-server /deemix-server
 
 
-FROM ghcr.io/hotio/lidarr:pr-plugins-2.5.2.4317
+FROM ghcr.io/hotio/lidarr:nightly
 
-LABEL maintainer="youegraillot"
+LABEL maintainer="Crapcraft"
 
 ENV DEEMIX_SINGLE_USER=true
 ENV AUTOCONFIG=true
