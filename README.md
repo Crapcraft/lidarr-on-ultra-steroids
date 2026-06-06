@@ -1,24 +1,50 @@
-# [lidarr-on-steroids](https://github.com/youegraillot/lidarr-on-steroids/)
+# lidarr-on-ultra-steroids
 
-```I'm looking for maintainers, pm me if you're interested !```
+A maintained fork of [lidarr-on-steroids](https://github.com/youegraillot/lidarr-on-steroids) with updated images and automatic weekly rebuilds.
 
-[![GitHub last commit](https://img.shields.io/github/last-commit/youegraillot/lidarr-on-steroids?style=for-the-badge&logo=github)](https://github.com/youegraillot/lidarr-on-steroids)
-[![Latest tag](https://img.shields.io/docker/v/youegraillot/lidarr-on-steroids?style=for-the-badge&logo=docker)](https://hub.docker.com/r/youegraillot/lidarr-on-steroids)
-[![Docker pulls](https://img.shields.io/docker/pulls/youegraillot/lidarr-on-steroids?style=for-the-badge&logo=docker)](https://hub.docker.com/r/youegraillot/lidarr-on-steroids)
+[![Build and Push](https://github.com/Crapcraft/lidarr-on-ultra-steroids/actions/workflows/build.yml/badge.svg)](https://github.com/Crapcraft/lidarr-on-ultra-steroids/actions/workflows/build.yml)
 
-This repository bundles a modded version of Lidarr and Deemix into a docker image featuring :
-  - Native Deemix integration as an indexer and downloader for Lidarr
-  - Automatic Lidarr and Deemix configuration
-  - Automatic conversion from any format with ffmpeg
-  - Podman compatibility with rootless mode
+## What's different from the original
 
-This allows an easy deployment, with the advantage of having a direct control over Deemix indexing and downloader capacities into Lidarr :
+- Base image updated from `hotio/lidarr:pr-plugins` (dead) to `hotio/lidarr:nightly` (active, plugin support included)
+- Node.js updated from `node:21-alpine` (EOL) to `node:lts-alpine` (current LTS, auto-tracking)
+- GitHub Actions workflow rebuilds and pushes to GHCR automatically every Monday
 
-!["Lidarr indexers"](https://github.com/youegraillot/lidarr-on-steroids/raw/main/.assets/lidarr-indexers.png "Lidarr indexers")
+## Important note
+
+This image uses `hotio/lidarr:nightly` which includes plugin support. Once you run this image you cannot revert to a standard Lidarr branch without restoring a database backup from before switching.
 
 ## Usage
 
-### Parameters
+### Docker Compose
+
+    services:
+      lidarr:
+        image: ghcr.io/crapcraft/lidarr-on-ultra-steroids:latest
+        restart: unless-stopped
+        ports:
+          - "8686:8686"
+          - "6595:6595"
+        volumes:
+          - <path>:/config
+          - <path>:/config_deemix
+          - <path>:/downloads
+          - <path>:/music
+
+### Docker Run
+
+    docker run \
+      --name lidarr \
+      -p 8686:8686 \
+      -p 6595:6595 \
+      -v <path>:/config \
+      -v <path>:/config_deemix \
+      -v <path>:/downloads \
+      -v <path>:/music \
+      --restart unless-stopped \
+      ghcr.io/crapcraft/lidarr-on-ultra-steroids:latest
+
+## Parameters
 
 | Parameter | Function |
 | :----: | --- |
@@ -26,80 +52,34 @@ This allows an easy deployment, with the advantage of having a direct control ov
 | `-p 6595` | Deemix WebUI |
 | `-e PUID=1000` | for UserID |
 | `-e PGID=1000` | for GroupID |
-| `-e AUTOCONFIG=true` | Enable automatic configuration - see below for explanation |
+| `-e AUTOCONFIG=true` | Enable automatic configuration |
 | `-e FLAC2CUSTOM_ARGS=""` | Sets arguments used when calling flac2custom.sh |
 | `-e CLEAN_DOWNLOADS=true` | Enable cleaning empty folders in /downloads |
-| `-v /config` | Configuration files for Lidarr. |
-| `-v /config_deemix` | Configuration files for Deemix. |
-| `-v /downloads` | Path to your download folder for music. |
-| `-v /music` | Music files. |
-
-### Docker Run
-
-```sh
-docker run \
-  --name lidarr \
-  -p 8686:8686 \
-  -p 6595:6595 \
-  -v <path>:/config \
-  -v <path>:/config_deemix \
-  -v <path>:/downloads \
-  -v <path>:/music \
-  --restart unless-stopped \
- youegraillot/lidarr-on-steroids
-```
-
-### Docker Compose
-
-```yml
-version: "3"
-services:
-  lidarr:
-    image: youegraillot/lidarr-on-steroids
-    restart: unless-stopped
-    ports:
-      - "8686:8686" # Lidarr web UI
-      - "6595:6595" # Deemix web UI
-    volumes:
-      - <path>:/config
-      - <path>:/config_deemix
-      - <path>:/downloads
-      - <path>:/music
-```
+| `-v /config` | Configuration files for Lidarr |
+| `-v /config_deemix` | Configuration files for Deemix |
+| `-v /downloads` | Path to your download folder for music |
+| `-v /music` | Music files |
 
 ## Automatic configuration
 
-Deemix comes with optimal settings allowing Lidarr integration, in particular regarding the folder structure ("createCDFolder" is required for this to work). `DEEMIX_SINGLE_USER` environment variable is also set to `true` to allow the `setup` script to read the corresponding ARL.
+In `AUTOCONFIG` mode (default), fill your Deezer credentials in the Deemix web UI (port 6595). Once `/config_deemix/login.json` is populated with your ARL, setup will automatically configure:
 
-The `setup` service will install the Deemix plugin. This requires Lidarr to be restarted once.
+- /music root folder
+- Delay profile allowing Deemix for automatic search
+- Deemix as an indexer and download client
+- Flac2Custom script connection if `FLAC2CUSTOM_ARGS` is set
+- clean-downloads script connection
 
-In `AUTOCONFIG` mode (default), the only manual manipulation you'll only have to fill your Deezer credentials in Deemix web UI (port [6595](http://localhost:6595) by default). Once the `/config_deemix/login.json` is filled with the resulting ARL, the `setup` will be able to create the following :
-  - /music root folder if no other root folder is configured
-  - Delay profile allowing Deemix to be used by automatic search
-  - Deemix as an indexer
-  - Deemix as a download client
-  - Flac2Custom script connection if `FLAC2CUSTOM_ARGS` is set
-  - clean-downloads script connection to keep your downloads folder *clean* after each imports
+Set `AUTOCONFIG=false` to skip this.
 
-In case you don't want the automagical part (which is really the only value of this image), just set `AUTOCONFIG` environment variable to `false`.
+## Audio conversion
 
-## Audio files conversion
+Supports conversion from any format via ffmpeg. To enable, create a Custom Script connection in Lidarr. See [lidarr-flac2mp3](https://github.com/youegraillot/lidarr-flac2mp3) for details.
 
-The image uses a modded version of lidarr-flac2mp3 allowing conversion from any format.
+## Acknowledgments
 
-To enable conversion on Lidarr import, create a new Connection to a Custom Script. You can also provide your own custom conversion script, see [lidarr-flac2mp3](https://github.com/youegraillot/lidarr-flac2mp3) for more information.
-
-In `AUTOCONFIG`, if `FLAC2CUSTOM_ARGS` is set and no other connection to flac2* is found, this step done for you :
-
-!["Lidarr custom script settings"](https://github.com/youegraillot/lidarr-on-steroids/raw/main/.assets/lidarr-custom-script.png "Lidarr custom script settings")
-
-## Acknowledgment
-
-This project is just a compilation of various tools made possible by these projects :
-
-- [Lidarr](https://github.com/Lidarr/Lidarr) and especially [ta264](https://github.com/ta264) for the plugin integration
-- [lidarr-flac2mp3](https://github.com/TheCaptain989/lidarr-flac2mp3) for the format conversion script
+- [youegraillot](https://github.com/youegraillot/lidarr-on-steroids) for the original lidarr-on-steroids
+- [Lidarr](https://github.com/Lidarr/Lidarr) and [ta264](https://github.com/ta264) for plugin integration
+- [lidarr-flac2mp3](https://github.com/TheCaptain989/lidarr-flac2mp3) for the conversion script
 - [Deemix](https://deemix.app/) for the downloader backend
 - [hotio](https://hotio.dev/) for the base docker image
-
-Alternatively, you could use [Deemixrr](https://github.com/TheUltimateC0der/deemixrr) which pretty much offers the same functionalities without the *starr of the various Sonarr forks.
