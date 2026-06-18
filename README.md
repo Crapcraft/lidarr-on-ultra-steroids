@@ -1,23 +1,19 @@
 # lidarr-on-ultra-steroids
-
 A maintained fork of [lidarr-on-steroids](https://github.com/youegraillot/lidarr-on-steroids) with updated images and automatic weekly rebuilds.
-
 [![Build and Push](https://github.com/Crapcraft/lidarr-on-ultra-steroids/actions/workflows/build.yml/badge.svg)](https://github.com/Crapcraft/lidarr-on-ultra-steroids/actions/workflows/build.yml)
 
-## What's different from the original
+> **Note:** I'm currently unable to test end-to-end functionality as my Deezer trial has expired. The image builds and runs, but Deezer/Deemix integration is unverified. Use at your own risk and feel free to open an issue if something is broken.
 
+## What's different from the original
 - Base image updated from `hotio/lidarr:pr-plugins` (dead) to `hotio/lidarr:nightly` (active, plugin support included)
 - Node.js updated from `node:21-alpine` (EOL) to `node:lts-alpine` (current LTS, auto-tracking)
 - GitHub Actions workflow rebuilds and pushes to GHCR automatically every Monday
 
 ## Important note
-
 This image uses `hotio/lidarr:nightly` which includes plugin support. Once you run this image you cannot revert to a standard Lidarr branch without restoring a database backup from before switching.
 
 ## Usage
-
 ### Docker Compose
-
     services:
       lidarr:
         image: ghcr.io/crapcraft/lidarr-on-ultra-steroids:latest
@@ -32,7 +28,6 @@ This image uses `hotio/lidarr:nightly` which includes plugin support. Once you r
           - <path>:/music
 
 ### Docker Run
-
     docker run \
       --name lidarr \
       -p 8686:8686 \
@@ -45,7 +40,6 @@ This image uses `hotio/lidarr:nightly` which includes plugin support. Once you r
       ghcr.io/crapcraft/lidarr-on-ultra-steroids:latest
 
 ## Parameters
-
 | Parameter | Function |
 | :----: | --- |
 | `-p 8686` | Lidarr WebUI |
@@ -61,23 +55,21 @@ This image uses `hotio/lidarr:nightly` which includes plugin support. Once you r
 | `-v /music` | Music files |
 
 ## Automatic configuration
-
 In `AUTOCONFIG` mode (default), fill your Deezer credentials in the Deemix web UI (port 6595). Once `/config_deemix/login.json` is populated with your ARL, setup will automatically configure:
-
 - /music root folder
 - Delay profile allowing Deemix for automatic search
 - Deemix as an indexer and download client
 - Flac2Custom script connection if `FLAC2CUSTOM_ARGS` is set
 - clean-downloads script connection
 
+> **⚠ Untested:** The autoconfig flow has not been verified recently due to an expired Deezer subscription. If you run into issues, please open an issue.
+
 Set `AUTOCONFIG=false` to skip this.
 
 ## Audio conversion
-
 Supports conversion from any format via ffmpeg. To enable, create a Custom Script connection in Lidarr. See [lidarr-flac2mp3](https://github.com/youegraillot/lidarr-flac2mp3) for details.
 
 ## Acknowledgments
-
 - [youegraillot](https://github.com/youegraillot/lidarr-on-steroids) for the original lidarr-on-steroids
 - [Lidarr](https://github.com/Lidarr/Lidarr) and [ta264](https://github.com/ta264) for plugin integration
 - [lidarr-flac2mp3](https://github.com/TheCaptain989/lidarr-flac2mp3) for the conversion script
