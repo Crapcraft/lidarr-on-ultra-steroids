@@ -73,5 +73,5 @@ Supports conversion from any format via ffmpeg. To enable, create a Custom Scrip
 - [youegraillot](https://github.com/youegraillot/lidarr-on-steroids) for the original lidarr-on-steroids
 - [Lidarr](https://github.com/Lidarr/Lidarr) and [ta264](https://github.com/ta264) for plugin integration
 - [lidarr-flac2mp3](https://github.com/TheCaptain989/lidarr-flac2mp3) for the conversion script
-- [Deemix](https://deemix.app/) for the downloader backend
+- [Deemix](https://deemix.org/) for the downloader backend
 - [hotio](https://hotio.dev/) for the base docker image
