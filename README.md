@@ -2,7 +2,6 @@
 A maintained fork of [lidarr-on-steroids](https://github.com/youegraillot/lidarr-on-steroids) with updated images and automatic weekly rebuilds.
 [![Build and Push](https://github.com/Crapcraft/lidarr-on-ultra-steroids/actions/workflows/build.yml/badge.svg)](https://github.com/Crapcraft/lidarr-on-ultra-steroids/actions/workflows/build.yml)
 
-> **Note:** I'm currently unable to test end-to-end functionality as my Deezer trial has expired. The image builds and runs, but Deezer/Deemix integration is unverified. Use at your own risk and feel free to open an issue if something is broken.
 
 ## What's different from the original
 - Base image updated from `hotio/lidarr:pr-plugins` (dead) to `hotio/lidarr:nightly` (active, plugin support included)
@@ -61,8 +60,6 @@ In `AUTOCONFIG` mode (default), fill your Deezer credentials in the Deemix web U
 - Deemix as an indexer and download client
 - Flac2Custom script connection if `FLAC2CUSTOM_ARGS` is set
 - clean-downloads script connection
-
-> **⚠ Untested:** The autoconfig flow has not been verified recently due to an expired Deezer subscription. If you run into issues, please open an issue.
 
 Set `AUTOCONFIG=false` to skip this.
 
