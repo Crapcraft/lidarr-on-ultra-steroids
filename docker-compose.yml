@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   lidarr-onultrasteroids:
-    image: crapcraft/lidarr-on-steroids
+    image: crapcraft/lidarr-on-ultra-steroids
     build:
       context: .
     environment:
